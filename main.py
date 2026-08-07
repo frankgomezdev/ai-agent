@@ -19,24 +19,24 @@ def main():
 
     parser = argparse.ArgumentParser(description="Chatbot")
     parser.add_argument("user_prompt", type=str, help="User prompt")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
+
+    messages = [
+        {"role": "user", "content": args.user_prompt}
+    ]
 
     response = client.chat.completions.create(
     model="openrouter/free",
-    messages = [
-    {
-        "role": "user",
-        "content": args.user_prompt,
-    }
-]
-)
-    
-    
-    if response.usage is not None:
+    messages=messages,
+    )
+
+    if args.verbose:
+        print(f"User prompt: {args.user_prompt}")
+        if response.usage is None:
+            raise RuntimeError("API request contained no usage data, the request may have failed.")
         print(f"Prompt tokens: {response.usage.prompt_tokens}")
         print(f"Response tokens: {response.usage.completion_tokens}")
-    else:
-        raise RuntimeError("API request contained no usage data, the request may have failed.")
     
     print(response.choices[0].message.content)
 
