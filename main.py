@@ -1,5 +1,6 @@
 import os
 import argparse
+import sys
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -30,31 +31,36 @@ def main():
         {"role": "user", "content": args.user_prompt}
     ]
 
-    response = client.chat.completions.create(
-    model="openrouter/free",
-    messages=messages,
-    temperature=0,
-    tools=available_functions
-    )
+    for _ in range(20):
+        response = client.chat.completions.create(
+            model="openrouter/free",
+            messages=messages,
+            temperature=0,
+            tools=available_functions
+            )
 
-    message = response.choices[0].message
+        message = response.choices[0].message
+        messages.append(message)
 
-    for tool_call in message.tool_calls:
-        result_message = call_function(tool_call, args.verbose)
-        if not result_message["content"]:
-            raise Exception("No content.")
-        if args.verbose:
-            print(f"-> {result_message['content']}")
-
-    if args.verbose:
-        print(f"User prompt: {args.user_prompt}")
-        if response.usage is None:
-            raise RuntimeError("API request contained no usage data, the request may have failed.")
-        print(f"Prompt tokens: {response.usage.prompt_tokens}")
-        print(f"Response tokens: {response.usage.completion_tokens}")
-    
-    print(response.choices[0].message.content)
-
+        if message.tool_calls:
+            for tool_call in message.tool_calls:
+                result_message = call_function(tool_call, args.verbose)
+                messages.append(result_message)
+                if not result_message["content"]:
+                    raise Exception("No content.")
+                if args.verbose:
+                    print(f"-> {result_message['content']}")
+        else:
+            if args.verbose:
+                print(f"User prompt: {args.user_prompt}")
+                if response.usage is None:
+                    raise RuntimeError("API request contained no usage data, the request may have failed.")
+                print(f"Prompt tokens: {response.usage.prompt_tokens}")
+                print(f"Response tokens: {response.usage.completion_tokens}")
+            print(message.content)
+            return
+    print(f"Maximum number of iterations reached. Model was not able to produce a final response")
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()
