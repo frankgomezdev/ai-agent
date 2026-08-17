@@ -1,5 +1,27 @@
 import os
 
+schema_write_file = {
+    "type": "function",
+    "function": {
+        "name": "write_file",
+        "description": "Write and overwrite files, within a strict limit.",
+        "parameters": {
+            "type": "object",
+            "required:": ["file_path", "content"],
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "File where content will be written or overwritten. File will be created if it doesn't exist.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content that will be written to file.",
+                },
+            },
+        },
+    },
+}
+
 def write_file(working_directory: str, file_path: str, content: str) -> str:
     try:
         working_dir_abs = os.path.abspath(working_directory)

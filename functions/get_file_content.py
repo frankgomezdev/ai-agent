@@ -1,5 +1,23 @@
 import os
 
+schema_get_file_content = {
+    "type": "function",
+    "function": {
+        "name": "get_file_content",
+        "description": "Reads content from a file and returns it.",
+        "parameters": {
+            "required": ["file_path"],
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "File where content will be read and returned from.",
+                },
+            },
+        },
+    },
+}
+
 MAX_CHARS = 10000
 
 def get_file_content(working_directory: str, file_path: str) -> str:
